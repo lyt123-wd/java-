@@ -1,0 +1,21 @@
+# Python 训练环境与数据集不打进镜像
+ai_model/.venv/
+ai_model/__pycache__/
+ai_model/PlantVillage-Dataset-image/
+**/__pycache__/
+*.pyc
+
+# 构建产物
+plant-disease-server/target/
+plant-disease-web/plant-disease-web/node_modules/
+plant-disease-web/plant-disease-web/dist/
+
+# 运行时数据
+upload/
+plant-disease-server/upload/
+logs/
+*.log
+
+.git/
+.idea/
+.env

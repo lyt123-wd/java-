@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.plant.disease.mapper.DiseaseMapper">
+
+    <resultMap id="BaseResultMap" type="com.plant.disease.entity.Disease">
+        <id column="id" property="id"/>
+        <result column="crop_name" property="cropName"/>
+        <result column="disease_name" property="diseaseName"/>
+        <result column="en_name" property="enName"/>
+        <result column="create_time" property="createTime"/>
+        <!-- 防治字段映射 -->
+        <result column="symptom" property="symptom"/>
+        <result column="cause" property="cause"/>
+        <result column="pesticide" property="pesticide"/>
+        <result column="farming" property="farming"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        select * from disease_info where id = #{id}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        select * from disease_info
+    </select>
+
+    <!-- 病害列表（按作物筛选，关联防治表） -->
+    <select id="selectListByCrop" resultMap="BaseResultMap">
+        SELECT
+        d.id,
+        d.crop_name,
+        d.disease_name,
+        d.en_name,
+        d.create_time,
+        c.symptom,
+        c.cause,
+        c.pesticide,
+        c.farming
+        FROM disease_info d
+        LEFT JOIN disease_control c ON d.id = c.disease_id
+        <where>
+            <if test="cropName != null and cropName != ''">
+                AND d.crop_name = #{cropName}
+            </if>
+        </where>
+        ORDER BY d.id ASC
+    </select>
+
+    <!-- 病害详情（含完整防治方案） -->
+    <select id="selectDetailById" resultMap="BaseResultMap">
+        SELECT
+            d.id,
+            d.crop_name,
+            d.disease_name,
+            d.en_name,
+            d.create_time,
+            c.symptom,
+            c.cause,
+            c.pesticide,
+            c.farming
+        FROM disease_info d
+                 LEFT JOIN disease_control c ON d.id = c.disease_id
+        WHERE d.id = #{id}
+    </select>
+    <select id="getDiseaseDetail" resultType="com.plant.disease.vo.DiseaseVO">
+        SELECT
+            di.id AS id,
+            di.crop_name AS cropName,
+            di.disease_name AS diseaseName,
+            dc.symptom,
+            dc.cause,
+            dc.pesticide,
+            dc.farming
+        FROM disease_info di
+                 LEFT JOIN disease_control dc ON di.id = dc.disease_id
+        WHERE di.id = #{diseaseId}
+    </select>
+
+    <!-- 按模型类别名查询，避免假设 class_index + 1 == disease_id -->
+    <select id="getDiseaseDetailByEnName" resultType="com.plant.disease.vo.DiseaseVO">
+        SELECT
+            di.id AS id,
+            di.crop_name AS cropName,
+            di.disease_name AS diseaseName,
+            dc.symptom,
+            dc.cause,
+            dc.pesticide,
+            dc.farming
+        FROM disease_info di
+                 LEFT JOIN disease_control dc ON di.id = dc.disease_id
+        WHERE di.en_name = #{enName}
+        LIMIT 1
+    </select>
+
+</mapper>

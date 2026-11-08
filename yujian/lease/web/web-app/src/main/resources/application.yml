@@ -1,0 +1,60 @@
+server:
+  port: ${SERVER_PORT:8081}
+  shutdown: graceful
+
+spring:
+  application:
+    name: yujian-app
+  lifecycle:
+    timeout-per-shutdown-phase: 20s
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:yujian}?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=GMT%2b8
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
+    hikari:
+      pool-name: YujianAppHikariPool
+      maximum-pool-size: ${DB_POOL_SIZE:12}
+      minimum-idle: ${DB_MIN_IDLE:4}
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+  jackson:
+    time-zone: GMT+8
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      database: ${REDIS_DATABASE:0}
+      timeout: 3s
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+
+jwt:
+  secret: ${JWT_SECRET:dev-only-secret-change-me-32-characters-min}
+  expiration: ${JWT_EXPIRATION:7d}
+
+aliyun:
+  sms:
+    # 默认关闭，验证码打印到日志；配置 AccessKey 后开启真实短信
+    enabled: ${SMS_ENABLED:false}
+    access-key-id: ${SMS_ACCESS_KEY_ID:}
+    access-key-secret: ${SMS_ACCESS_KEY_SECRET:}
+    endpoint: ${SMS_ENDPOINT:dysmsapi.aliyuncs.com}
+    template-code: ${SMS_TEMPLATE_CODE:SMS_154950909}
+    sign-name: ${SMS_SIGN_NAME:阿里云短信测试}
+
+springdoc:
+  default-flat-param-object: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when_authorized

@@ -1,0 +1,32 @@
+# Python 训练环境与数据集
+ai_model/.venv/
+ai_model/__pycache__/
+ai_model/PlantVillage-Dataset-image/
+**/__pycache__/
+*.pyc
+
+# Java
+plant-disease-server/target/
+
+# Node
+plant-disease-web/plant-disease-web/node_modules/
+plant-disease-web/plant-disease-web/dist/
+
+# 运行时数据
+upload/
+plant-disease-server/upload/
+*.log
+logs/
+
+# IDE / 系统
+.idea/
+*.iml
+.vscode/
+.DS_Store
+
+# 本地环境变量
+.env
+.env.local
+
+# 训练导出产物（后端使用仓库根目录的模型）
+ai_model/plant_disease_mobilenetv2.onnx

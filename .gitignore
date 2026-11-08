@@ -1,0 +1,26 @@
+### IDE / OS ###
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
+### Java ###
+**/target/
+
+### Node ###
+**/node_modules/
+**/dist/
+
+### Local config ###
+**/.env
+**/.env.local
+
+### Runtime ###
+**/uploads/
+**/logs/
+*.log
+
+### Python / dataset ###
+**/__pycache__/
+**/.venv/
+**/PlantVillage-Dataset-image/

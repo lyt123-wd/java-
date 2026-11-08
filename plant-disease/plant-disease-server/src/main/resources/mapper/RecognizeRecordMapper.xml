@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.plant.disease.mapper.RecognizeRecordMapper">
+
+    <!-- 基础实体映射，只映射记录表本身字段 -->
+    <resultMap id="BaseResultMap" type="com.plant.disease.entity.RecognizeRecord">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="image_url" property="imageUrl"/>
+        <result column="disease_id" property="diseaseId"/>
+        <result column="confidence" property="confidence"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <!-- VO映射：给历史查询用，包含联表带出的cropName、diseaseName -->
+    <resultMap id="RecordVOMap" type="com.plant.disease.vo.RecordVO">
+        <id column="id" property="id"/>
+        <result column="image_url" property="imageUrl"/>
+        <result column="crop_name" property="cropName"/>
+        <result column="disease_name" property="diseaseName"/>
+        <result column="confidence" property="confidence"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <!-- 插入：只存记录表存在的字段！删掉disease_name、crop_name -->
+    <!-- 插入：补充create_time字段，保存识别时间 -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into recognize_record (user_id, image_url, disease_id, confidence, create_time)
+        values (#{userId}, #{imageUrl}, #{diseaseId}, #{confidence}, #{createTime})
+    </insert>
+
+
+    <!-- 查询历史，返回RecordVO，带作物病害名称，加userId过滤 -->
+    <select id="selectByUserId" resultMap="RecordVOMap">
+        select r.id, r.image_url, r.confidence, r.create_time,
+               d.crop_name, d.disease_name
+        from recognize_record r
+                 left join disease_info d on r.disease_id = d.id
+        where r.user_id = #{userId}
+        order by r.create_time desc
+    </select>
+
+    <delete id="deleteById">
+        delete from recognize_record where id = #{id} and user_id = #{userId}
+    </delete>
+
+    <!-- 统计：增加userId，只统计当前用户的数据 -->
+    <select id="countByDisease" resultType="java.util.Map">
+        select d.disease_name as name, count(*) as value
+        from recognize_record r
+            left join disease_info d on r.disease_id = d.id
+        where r.user_id = #{userId}
+        group by d.disease_name
+    </select>
+    <!-- 分页查询 -->
+    <select id="selectPageRecord" resultType="com.plant.disease.vo.RecordVO">
+        SELECT
+            r.id,
+            r.image_url,
+            r.confidence,
+            r.create_time,
+            d.crop_name,
+            d.disease_name
+        FROM recognize_record r
+                 LEFT JOIN disease_info d ON r.disease_id = d.id
+        WHERE r.user_id = #{userId}
+        ORDER BY r.create_time DESC
+            LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <!-- 统计总数 -->
+    <select id="countRecord" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM recognize_record
+        WHERE user_id = #{userId}
+    </select>
+    <!-- 查询识别详情（关联病害表+防治表） -->
+    <select id="selectDetailById" resultType="com.plant.disease.vo.RecordDetailVO">
+        SELECT
+            r.id,
+            r.image_url,
+            r.confidence,
+            r.create_time,
+            d.crop_name,
+            d.disease_name,
+            c.symptom,
+            c.cause,
+            c.pesticide,
+            c.farming
+        FROM recognize_record r
+                 LEFT JOIN disease_info d ON r.disease_id = d.id
+                 LEFT JOIN disease_control c ON r.disease_id = c.disease_id
+        WHERE r.id = #{id} AND r.user_id = #{userId}
+    </select>
+    <!-- 近7天识别次数统计 -->
+    <select id="countLast7Days" resultType="java.util.Map">
+        SELECT
+            DATE(create_time) AS date,
+            COUNT(*) AS count
+        FROM recognize_record
+        WHERE user_id = #{userId}
+          AND DATE(create_time) >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+        GROUP BY DATE(create_time)
+        ORDER BY date ASC
+    </select>
+    <!-- 总识别次数 -->
+    <select id="countTotal" resultType="long">
+        SELECT COUNT(*) FROM recognize_record WHERE user_id = #{userId}
+    </select>
+
+    <!-- 识别过的病害种类数 -->
+    <select id="countDiseaseTypeNum" resultType="long">
+        SELECT COUNT(DISTINCT disease_id) FROM recognize_record WHERE user_id = #{userId}
+    </select>
+
+    <!-- 今日识别次数 -->
+    <select id="countToday" resultType="long">
+        SELECT COUNT(*) FROM recognize_record
+        WHERE user_id = #{userId} AND DATE(create_time) = CURDATE()
+    </select>
+
+    <!-- 近7天识别总次数 -->
+    <select id="countLast7DaysTotal" resultType="long">
+        SELECT COUNT(*) FROM recognize_record
+        WHERE user_id = #{userId} AND DATE(create_time) >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+    </select>
+    <select id="countByCrop" resultType="java.util.Map">
+        SELECT
+            d.crop_name AS name,
+            COUNT(*) AS value
+        FROM recognize_record r
+            LEFT JOIN disease_info d ON r.disease_id = d.id
+        WHERE r.user_id = #{userId}
+        GROUP BY d.crop_name
+        ORDER BY value DESC
+    </select>
+
+
+</mapper>

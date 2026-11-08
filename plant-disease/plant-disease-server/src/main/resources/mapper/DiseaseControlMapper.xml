@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.plant.disease.mapper.DiseaseControlMapper">
+
+    <resultMap id="BaseResultMap" type="com.plant.disease.entity.DiseaseControl">
+        <id column="id" property="id"/>
+        <result column="disease_id" property="diseaseId"/>
+        <result column="symptom" property="symptom"/>
+        <result column="cause" property="cause"/>
+        <result column="pesticide" property="pesticide"/>
+        <result column="farming" property="farming"/>
+    </resultMap>
+
+    <select id="selectByDiseaseId" resultMap="BaseResultMap">
+        select * from disease_control where disease_id = #{diseaseId}
+    </select>
+</mapper>

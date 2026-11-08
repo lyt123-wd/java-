@@ -1,0 +1,67 @@
+name: plant-disease
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: plant-disease-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-plant123}
+      MYSQL_DATABASE: ${DB_NAME:-plant_disease}
+      TZ: Asia/Shanghai
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-time-zone=+08:00
+    ports:
+      # 宿主机 3307，避免和本机已有 MySQL 冲突
+      - "${DB_EXPOSE_PORT:-3307}:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./plant-disease-server/src/main/resources/db/plant_disease.sql:/docker-entrypoint-initdb.d/01-plant_disease.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: plant-disease-app
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SERVER_PORT: 8080
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-plant_disease}
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_PASSWORD:-plant123}
+      JWT_SECRET: ${JWT_SECRET:-dev-only-plant-disease-secret-change-me}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
+      MODEL_PATH: /app/model.onnx
+      UPLOAD_PATH: /app/uploads/
+    ports:
+      - "${SERVER_PORT:-8080}:8080"
+    volumes:
+      - uploads:/app/uploads
+
+  web:
+    build:
+      context: ./plant-disease-web/plant-disease-web
+      dockerfile: Dockerfile
+    container_name: plant-disease-web
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "${WEB_PORT:-80}:80"
+
+volumes:
+  mysql-data:
+  uploads:

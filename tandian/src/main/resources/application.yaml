@@ -1,0 +1,90 @@
+server:
+  port: ${SERVER_PORT:8081}
+  shutdown: graceful
+
+spring:
+  application:
+    name: tandian
+  lifecycle:
+    timeout-per-shutdown-phase: 20s
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:tandian}?useSSL=false&serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
+    hikari:
+      pool-name: TanDianHikariPool
+      maximum-pool-size: ${DB_POOL_SIZE:12}
+      minimum-idle: ${DB_MIN_IDLE:4}
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      database: ${REDIS_DATABASE:0}
+      timeout: 3s
+      lettuce:
+        pool:
+          max-active: ${REDIS_POOL_MAX_ACTIVE:16}
+          max-idle: 16
+          min-idle: 2
+          max-wait: 1s
+  jackson:
+    default-property-inclusion: non_null
+    time-zone: Asia/Shanghai
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+mybatis-plus:
+  type-aliases-package: com.tandian.entity
+  configuration:
+    map-underscore-to-camel-case: true
+
+logging:
+  level:
+    root: info
+    com.tandian: ${LOG_LEVEL:info}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when_authorized
+  health:
+    redis:
+      enabled: true
+    db:
+      enabled: true
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+
+tandian:
+  admin:
+    # 管理端写接口请求头 X-Admin-Token；生产环境务必通过环境变量覆盖
+    token: ${ADMIN_TOKEN:change-me}
+  storage:
+    upload-dir: ${UPLOAD_DIR:./uploads}
+    allowed-extensions: jpg,jpeg,png,webp,gif
+  seckill:
+    stream-key: ${SECKILL_STREAM_KEY:stream.orders}
+    consumer-group: ${SECKILL_CONSUMER_GROUP:g1}
+    consumer-name: ${SECKILL_CONSUMER_NAME:c1}
+    stream-max-len: ${SECKILL_STREAM_MAX_LEN:10000}
+    rate-limit-per-second: ${SECKILL_RATE_LIMIT:5}
+  init:
+    geo-enabled: ${INIT_GEO_ENABLED:true}
+    stock-enabled: ${INIT_STOCK_ENABLED:true}

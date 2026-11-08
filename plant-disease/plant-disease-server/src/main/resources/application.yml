@@ -1,0 +1,48 @@
+server:
+  port: ${SERVER_PORT:8080}
+  shutdown: graceful
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:plant_disease}?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useServerPrepStmts=false&useSSL=false&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+# 项目自定义配置
+project:
+  # 图片上传目录，支持相对/绝对路径
+  upload-path: ${UPLOAD_PATH:./upload/}
+  # ONNX 模型路径
+  model-path: ${MODEL_PATH:./plant_disease_mobilenetv2.onnx}
+  # JWT 密钥，至少 32 字节，生产环境务必通过 JWT_SECRET 覆盖
+  jwt-secret: ${JWT_SECRET:dev-only-plant-disease-secret-change-me}
+  # JWT 过期时间（毫秒），默认 24 小时
+  jwt-expiration: ${JWT_EXPIRATION:86400000}
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.plant.disease.entity
+  configuration:
+    map-underscore-to-camel-case: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when_authorized
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha

@@ -1,0 +1,150 @@
+/* ========== 植物绿色主题：Design Token ========== */
+:root {
+  /* 基础色 */
+  --text: #4a5568;
+  --text-h: #1a202c;
+  --bg: #ffffff;
+  --bg-soft: #f5faf6;
+  --border: #e3f1e5;
+  --code-bg: #f0f7f2;
+
+  /* 主色：植物绿 */
+  --accent: #2e7d32;
+  --accent-light: #66bb6a;
+  --accent-bg: rgba(46, 125, 50, 0.12);
+  --accent-border: rgba(46, 125, 50, 0.45);
+
+  /* 功能色 */
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+
+  /* 阴影 */
+  --shadow-sm: 0 2px 8px rgba(46, 125, 50, 0.08);
+  --shadow: 0 10px 15px -3px rgba(46, 125, 50, 0.12),
+            0 4px 6px -2px rgba(46, 125, 50, 0.06);
+
+  /* 字体 */
+  --sans: system-ui, 'Segoe UI', Roboto, "Microsoft YaHei", sans-serif;
+  --heading: system-ui, 'Segoe UI', Roboto, "Microsoft YaHei", sans-serif;
+  --mono: ui-monospace, Consolas, monospace;
+
+  /* 基础排版 */
+  font: 15px/160% var(--sans);
+  letter-spacing: 0.18px;
+  color-scheme: light;
+  color: var(--text);
+  background: var(--bg-soft);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* ========== 同步 Element Plus 绿色主题 ========== */
+  --el-color-primary: var(--accent);
+  --el-color-primary-light-3: #4caf50;
+  --el-color-primary-light-5: #81c784;
+  --el-color-primary-light-7: #c8e6c9;
+  --el-color-primary-light-8: #dcedc8;
+  --el-color-primary-light-9: #f1f8e9;
+  --el-color-primary-dark-2: #1b5e20;
+
+  --el-border-radius-base: 8px;
+  --el-border-radius-small: 6px;
+}
+
+/* ========== 基础重置 ========== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-soft);
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--heading);
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+h1 {
+  font-size: 32px;
+  letter-spacing: -0.5px;
+  margin: 20px 0;
+}
+
+h2 {
+  font-size: 20px;
+  line-height: 130%;
+  margin: 0 0 12px;
+}
+
+p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 14px;
+  line-height: 135%;
+  padding: 3px 8px;
+  border-radius: 4px;
+  color: var(--text-h);
+  background: var(--code-bg);
+}
+
+/* ========== 后台布局适配 ========== */
+#app {
+  width: 100%;
+  min-height: 100vh;
+  background: var(--bg-soft);
+}
+
+/* ========== 通用卡片增强 ========== */
+.el-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--el-border-radius-base);
+  transition: all 0.25s ease;
+}
+
+.el-card:hover {
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+
+/* ========== 顶部导航栏 ========== */
+.el-header {
+  background: #1b5e20 !important;
+  color: #ffffff;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  z-index: 10;
+}
+
+/* ========== 主内容区 ========== */
+.el-main {
+  background: var(--bg-soft);
+  padding: 20px;
+}
+
+/* ========== 表格增强 ========== */
+.el-table {
+  border-radius: var(--el-border-radius-base);
+  overflow: hidden;
+}
+
+/* ========== 按钮悬浮效果 ========== */
+.el-button--primary {
+  transition: all 0.2s ease;
+}
+
+.el-button--primary:hover {
+  box-shadow: 0 6px 18px rgba(46, 125, 50, 0.25);
+  transform: translateY(-1px);
+}

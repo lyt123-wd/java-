@@ -1,0 +1,157 @@
+name: yujian
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: yujian-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-yujian123}
+      MYSQL_DATABASE: ${DB_NAME:-yujian}
+      TZ: Asia/Shanghai
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-time-zone=+08:00
+    ports:
+      # 宿主机 3307，避免和本机已有 MySQL 冲突
+      - "${DB_EXPOSE_PORT:-3307}:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./lease/src/main/resources/db/lease.sql:/docker-entrypoint-initdb.d/01-lease.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  redis:
+    image: redis:7-alpine
+    container_name: yujian-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "${REDIS_EXPOSE_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  minio:
+    image: minio/minio:latest
+    container_name: yujian-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minioadmin}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:9000/minio/health/live || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+  web-admin:
+    build:
+      context: ./lease
+      dockerfile: Dockerfile
+      args:
+        MODULE: web/web-admin
+    container_name: yujian-admin
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    environment:
+      SERVER_PORT: 8080
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-yujian}
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_PASSWORD:-yujian123}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ""
+      JWT_SECRET: ${JWT_SECRET:-dev-only-secret-change-me-32-characters-min}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-7d}
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_PUBLIC_ENDPOINT: ${MINIO_PUBLIC_ENDPOINT:-http://localhost:9000}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadmin}
+      MINIO_BUCKET: ${MINIO_BUCKET:-yujian}
+    ports:
+      - "${ADMIN_API_PORT:-8080}:8080"
+
+  web-app:
+    build:
+      context: ./lease
+      dockerfile: Dockerfile
+      args:
+        MODULE: web/web-app
+    container_name: yujian-app
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      SERVER_PORT: 8081
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-yujian}
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_PASSWORD:-yujian123}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ""
+      JWT_SECRET: ${JWT_SECRET:-dev-only-secret-change-me-32-characters-min}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-7d}
+      SMS_ENABLED: ${SMS_ENABLED:-false}
+      SMS_ACCESS_KEY_ID: ${SMS_ACCESS_KEY_ID:-}
+      SMS_ACCESS_KEY_SECRET: ${SMS_ACCESS_KEY_SECRET:-}
+      SMS_TEMPLATE_CODE: ${SMS_TEMPLATE_CODE:-SMS_154950909}
+      SMS_SIGN_NAME: ${SMS_SIGN_NAME:-阿里云短信测试}
+    ports:
+      - "${APP_API_PORT:-8081}:8081"
+
+  admin-web:
+    build:
+      context: ./rentHouseAdmin
+      dockerfile: Dockerfile
+    container_name: yujian-admin-web
+    restart: unless-stopped
+    depends_on:
+      - web-admin
+    ports:
+      - "${ADMIN_WEB_PORT:-80}:80"
+
+  h5-web:
+    build:
+      context: ./rentHouseH5
+      dockerfile: Dockerfile
+    container_name: yujian-h5
+    restart: unless-stopped
+    depends_on:
+      - web-app
+    ports:
+      - "${H5_WEB_PORT:-81}:80"
+
+volumes:
+  mysql-data:
+  redis-data:
+  minio-data:
