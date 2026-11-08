@@ -49,7 +49,7 @@ import { onMounted, ref } from 'vue'
 import { TermInfoInterface } from '@/api/apartmentManagement/types'
 import { deleteTermById, getTermList } from '@/api/apartmentManagement'
 import { ButtonPermission } from '@/enums/constEnums'
-import SupportTermDialog from '@/views/apartmentManagement/attributeManagement/components/SupportTermDialog.vue'
+import SupportTermDialog from '@/views/apartmentManagement/attributeManagement/components/supportTermDialog.vue'
 import { ElMessage } from 'element-plus'
 const supportTermDialog = ref<InstanceType<typeof SupportTermDialog>>()
 // 租期类型

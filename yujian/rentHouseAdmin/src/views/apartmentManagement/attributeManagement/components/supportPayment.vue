@@ -49,7 +49,7 @@ import { onMounted, ref } from 'vue'
 import { PaymentInfoInterface } from '@/api/apartmentManagement/types'
 import { deletePaymentById, getPaymentList } from '@/api/apartmentManagement'
 import { ButtonPermission } from '@/enums/constEnums'
-import SupportPaymentDialog from '@/views/apartmentManagement/attributeManagement/components/SupportPaymentDialog.vue'
+import SupportPaymentDialog from '@/views/apartmentManagement/attributeManagement/components/supportPaymentDialog.vue'
 import { ElMessage } from 'element-plus'
 const supportPaymentDialog = ref<InstanceType<typeof SupportPaymentDialog>>()
 // 支付方式类型
