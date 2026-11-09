@@ -149,6 +149,8 @@ docker compose logs -f app
 
 > 数据库初始化脚本只在 MySQL 数据卷第一次创建时执行。需要重置数据时执行 `docker compose down -v` 后重新启动。
 
+> 初始化数据包含店铺 1 的一张 **100 元秒杀券**（库存 100，有效期一年）。登录后进入店铺 1 的详情页，点击“限时抢购”即可验证 Lua 扣库存、Redis Stream 异步下单和一人一单。若当前数据卷是旧版本创建的，可登录管理端调用 `POST /voucher/seckill` 新增，或执行 `docker compose down -v` 后重新初始化。
+
 ### 方式二：本地运行
 
 前置条件：JDK 21、Maven 3.9+、MySQL 8、Redis 7。
@@ -173,6 +175,8 @@ mvn spring-boot:run
 ### 前端说明
 
 `frontend/` 是黑马点评课程配套的静态页面（Vue 2 + Element UI）。页面里的 `axios.defaults.baseURL = "/api"`，由 Nginx 去掉 `/api` 前缀后转发到后端 `app:8081`；单独调前端时也可以把 baseURL 改成 `http://localhost:8081`。
+
+图片请求统一走 `/imgs/`：Nginx 优先从 `frontend/imgs` 返回课程自带的静态图片（商铺分类图标、探店笔记图等），找不到时再回源到后端的 `/app/uploads` 上传目录。这样既保留了演示数据图片，也能显示用户新上传的图片。
 
 ### 登录与调试
 

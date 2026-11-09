@@ -1258,6 +1258,11 @@ CREATE TABLE `tb_voucher`  (
 -- Records of tb_voucher
 -- ----------------------------
 INSERT INTO `tb_voucher` VALUES (1, 1, '50元代金券', '周一至周日均可使用', '全场通用\\n无需预约\\n可无限叠加\\不兑现、不找零\\n仅限堂食', 4750, 5000, 0, 1, '2022-01-04 09:42:39', '2022-01-04 09:43:31');
+-- 演示用秒杀券：有效期从首次初始化时间起一年，避免固定日期过期
+INSERT INTO `tb_voucher` (`id`, `shop_id`, `title`, `sub_title`, `rules`, `pay_value`, `actual_value`, `type`, `status`, `create_time`, `update_time`)
+VALUES (2, 1, '100元代金券', '限时秒杀，手慢无', '全场通用\\n每人限购1张', 8000, 10000, 1, 1, NOW(), NOW());
+INSERT INTO `tb_seckill_voucher` (`voucher_id`, `stock`, `create_time`, `begin_time`, `end_time`, `update_time`)
+VALUES (2, 100, NOW(), DATE_SUB(NOW(), INTERVAL 1 DAY), DATE_ADD(NOW(), INTERVAL 365 DAY), NOW());
 
 -- ----------------------------
 -- Table structure for tb_voucher_order
