@@ -32,6 +32,8 @@ services:
       dockerfile: Dockerfile
     container_name: plant-disease-app
     restart: unless-stopped
+    # 本机 Docker Desktop 内存有限，给 JVM 限内存，避免 MaxRAMPercentage 按 VM 总量算
+    mem_limit: 768m
     depends_on:
       mysql:
         condition: service_healthy
