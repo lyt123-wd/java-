@@ -4,7 +4,7 @@
 
 | 项目 | 目录 | 技术栈 | 核心亮点 |
 | --- | --- | --- | --- |
-| **TanDian 本地生活服务平台** | [`tandian/`](tandian/README.md) | Spring Boot 3.1、Java 21、MySQL 8、Redis 7、Redisson、Lua、Redis Stream | 商铺缓存、GEO 附近、点赞/Feed、秒杀限流/异步下单/死信重放、Prometheus |
+| **TanDian 本地生活服务平台** | [`tandian/`](tandian/README.md) | Spring Boot 3.1、Java 21、MySQL 8、Redis 7、Redisson、Lua、Redis Stream、Nginx | 商铺缓存、GEO 附近、点赞/Feed、秒杀限流/异步下单/死信重放、Prometheus、前端页面 |
 | **寓见公寓租赁服务平台** | [`yujian/`](yujian/README.md) | Spring Boot 3.0、Java 17、MyBatis-Plus、MySQL、Redis、MinIO、Vue 3、Vant | 多模块后端、JWT/验证码/BCrypt、报修工单、Docker Compose + Nginx |
 | **植物叶片病害识别与防治系统** | [`plant-disease/`](plant-disease/README.md) | PyTorch MobileNetV2、ONNX Runtime、Spring Boot 2.7、Vue 3、ECharts | 39 类模型训练/导出、ONNX Java 推理、批量识别、CSV 导出 |
 
@@ -14,6 +14,8 @@
 .
 ├── tandian/                       # 本地生活服务平台
 │   ├── src/                       # Spring Boot 后端
+│   ├── frontend/                  # 前端静态页（Vue 2 + Element UI）
+│   ├── deploy/nginx.conf          # 前端 Nginx 配置
 │   ├── docs/                      # 缓存、秒杀设计文档
 │   ├── Dockerfile
 │   └── docker-compose.yml
@@ -38,7 +40,7 @@
 
 - 缓存穿透/击穿处理、GEO 附近商铺、点赞 SortedSet、推模式 Feed。
 - 秒杀：Lua 原子校验 + Redis Stream 异步落库 + Redisson 用户锁 + pending 重试 + 死信队列/重放 + 唯一索引兜底。
-- 用户级限流、Prometheus 指标、Swagger、Docker Compose。
+- 用户级限流、Prometheus 指标、Swagger、Docker Compose、Nginx 托管前端页面。
 
 详见 [`tandian/README.md`](tandian/README.md)。
 

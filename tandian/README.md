@@ -43,13 +43,16 @@
 - **持久层**：MyBatis-Plus 3.5.7、MySQL 8.0、HikariCP
 - **缓存/并发**：Redis 7、Lettuce、Redisson 3.27、Lua、Redis Stream
 - **文档/监控**：Springdoc OpenAPI 2.3、Spring Boot Actuator
-- **构建/部署**：Maven 3.9、Docker 多阶段构建、Docker Compose
+- **前端**：HTML + Vue 2 + Element UI（`frontend/`，黑马点评课程配套页面）
+- **构建/部署**：Maven 3.9、Docker 多阶段构建、Docker Compose、Nginx
 
 ## 系统架构
 
 ```mermaid
 flowchart LR
-    C[客户端 / Swagger] --> API[Spring Boot API]
+    B[浏览器] --> N[Nginx<br/>静态页 + 反向代理]
+    N -->|/api、/imgs| API[Spring Boot API]
+    C[Swagger] --> API
     API -->|登录态 / 缓存 / 锁| R[(Redis 7)]
     API -->|业务数据| M[(MySQL 8)]
     API -->|Lua 原子扣减 + XADD| S[[Redis Stream]]
@@ -138,6 +141,7 @@ docker compose logs -f app
 
 启动完成后：
 
+- **前端页面**：<http://localhost:8082>（Nginx 托管 `frontend/`，`/api` 反向代理到后端）
 - 接口文档：<http://localhost:8081/swagger-ui.html>
 - 健康检查：<http://localhost:8081/actuator/health>
 - MySQL：宿主机 `localhost:3307`（容器内 3306），数据库 `tandian`
@@ -166,6 +170,10 @@ export ADMIN_TOKEN=change-me
 mvn spring-boot:run
 ```
 
+### 前端说明
+
+`frontend/` 是黑马点评课程配套的静态页面（Vue 2 + Element UI）。页面里的 `axios.defaults.baseURL = "/api"`，由 Nginx 去掉 `/api` 前缀后转发到后端 `app:8081`；单独调前端时也可以把 baseURL 改成 `http://localhost:8081`。
+
 ### 登录与调试
 
 1. 调用 `POST /user/code?phone=13812345678` 获取验证码；本地开发没有接短信通道，验证码会打印在应用日志里。
@@ -180,6 +188,7 @@ mvn spring-boot:run
 | 环境变量 | 默认值 | 说明 |
 | --- | --- | --- |
 | `SERVER_PORT` | `8081` | 服务端口 |
+| `WEB_PORT` | `8082` | 前端 Nginx 宿主机端口 |
 | `DB_HOST` / `DB_PORT` | `localhost` / `3306` | MySQL 地址 |
 | `DB_NAME` | `tandian` | 数据库名 |
 | `DB_USERNAME` / `DB_PASSWORD` | `root` / 空 | 数据库账号 |
@@ -198,6 +207,12 @@ mvn spring-boot:run
 
 ```text
 .
+├── frontend/                     # 前端静态页（Vue 2 + Element UI）
+│   ├── index.html
+│   ├── js/common.js              # axios baseURL = /api
+│   └── ...
+├── deploy/
+│   └── nginx.conf                # 静态资源 + /api、/imgs 反向代理
 ├── docs/                         # 设计文档
 │   ├── cache-design.md
 │   └── seckill-design.md
