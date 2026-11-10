@@ -1,0 +1,5 @@
+run,threads,ramp_up_s,duration_s,samples,errors,error_pct,avg_ms,p90_ms,p95_ms,p99_ms,max_ms,throughput_rps,min_free_mem_mb,jmeter_max_ws_mb
+smoke,5,5,15,173,0,0.00,6.1,9,11,17,35,12.1,2679,216
+t20,20,10,60,3098,0,0.00,3.0,5,6,9,24,52.2,2666,324
+t50,50,15,60,7455,0,0.00,1.8,3,4,6,22,125.3,2776,345
+t100,100,20,60,14222,0,0.00,1.4,2,3,4,27,238.7,2982,347

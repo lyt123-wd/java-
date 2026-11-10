@@ -277,6 +277,23 @@ curl -X POST -H "X-Admin-Token: change-me" \
 - Swagger UI：`/swagger-ui.html`
 - 秒杀死信：Redis Stream `stream.orders.dead`
 
+## 性能压测
+
+读接口的本地压测基线见 [docs/load-test.md](docs/load-test.md)，压测脚本和结果汇总在 [`loadtest/`](loadtest/)：
+
+| 线程数 | 样本数 | 错误 | 平均 | P95 | 吞吐 |
+| --- | --- | --- | --- | --- | --- |
+| 20 | 3098 | 0 | 3.0 ms | 6 ms | 52.2 req/s |
+| 50 | 7455 | 0 | 1.8 ms | 4 ms | 125.3 req/s |
+| 100 | 14222 | 0 | 1.4 ms | 3 ms | 238.7 req/s |
+
+```bash
+jmeter -n -t loadtest/read-baseline.jmx -l result.jtl -e -o report \
+  -Jthreads=100 -Jramp=20 -Jduration=60
+```
+
+压测必须用 CLI 非 GUI 模式，并限制 JMeter 堆大小（`-Xmx512m`）。同一台机器上同时跑客户端和服务端时，GUI 监听器加上过大的线程数会把物理内存和页面文件打穿，导致整机卡死；排查过程记录在压测报告里。
+
 ## 后续规划
 
 - [ ] 点赞/取消点赞改为 Lua 原子操作，避免并发重复计数
